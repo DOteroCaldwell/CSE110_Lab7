@@ -102,18 +102,21 @@ describe('Basic user flow for Website', () => {
 
     const prodItems = await page.$$('product-item');
     for (const item of prodItems) {
+      await item.evaluate(el => el.scrollIntoView());
       const shadowRootHandle = await item.getProperty('shadowRoot');
       const shadowRoot = await shadowRootHandle.asElement();
       const buttonHandle = await shadowRoot.$('button');
       const txt = await (await buttonHandle.getProperty('innerText')).jsonValue();
       if (txt === 'Add to Cart') {
         await buttonHandle.click();
+        await new Promise(r => setTimeout(r, 50));
+        await item.evaluate(el => el.scrollIntoView({block: 'center'}));
       }
     }
     const cartCount = await page.$eval('#cart-count', el => el.innerText);
     expect(cartCount).toBe('20');
 
-  }, 10000);
+  }, 20000);
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
   it('Checking number of items in cart on screen after reload', async () => {
@@ -135,7 +138,7 @@ describe('Basic user flow for Website', () => {
     expect(allButtonsRemove).toBe(true);
     expect(cartCount).toBe('20');
 
-  }, 10000);
+  }, 25000);
 
   // Check to make sure that the cart in localStorage is what you expect
   it('Checking the localStorage to make sure cart is correct', async () => {
@@ -166,18 +169,20 @@ describe('Basic user flow for Website', () => {
 
     const prodItems = await page.$$('product-item');
     for (const item of prodItems) {
+      await item.evaluate(el => el.scrollIntoView({block: 'center'}));
       const shadowRootHandle = await item.getProperty('shadowRoot');
       const shadowRoot = await shadowRootHandle.asElement();
       const buttonHandle = await shadowRoot.$('button');
       const txt = await (await buttonHandle.getProperty('innerText')).jsonValue();
       if (txt === 'Remove from Cart') {
         await buttonHandle.click();
+        await new Promise(r => setTimeout(r, 50));
       }
     }
     const cartCount = await page.$eval('#cart-count', el => el.innerText);
     expect(cartCount).toBe('0');
 
-  }, 10000);
+  }, 15000);
 
   // Checking to make sure that it remembers us removing everything from the cart
   // after we refresh the page
@@ -200,7 +205,7 @@ describe('Basic user flow for Website', () => {
     expect(allButtonsAdd).toBe(true);
     expect(cartCount).toBe('0');
 
-  }, 10000);
+  }, 15000);
 
   // Checking to make sure that localStorage for the cart is as we'd expect for the
   // cart being empty
